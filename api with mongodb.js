@@ -1,0 +1,49 @@
+const { response } = require('express');
+const express = require('express');
+const dbConnect = require('./mongodb');
+const mongodb = require('mongodb'); // for object id
+
+const app = express();
+
+app.use(express.json());
+
+app.get('/', async (req, res)=> {
+    let data = await dbConnect();
+    data = await data.find().toArray();
+    res.send(data);
+})
+
+app.post('/', async (req, res) => {
+    // console.log(req.body);
+    let data = await dbConnect();
+    // let result = await data.insertMany([req.body])
+    let result = await data.insertOne(req.body)
+    res.send(result);
+})
+
+// app.put('/', async (req,res) => {
+//     let data = await dbConnect();
+//     let result = await data.updateOne(
+//         {name: req.body.name},
+//         {$set: req.body}
+//     )
+//     res.send(result);
+// })
+
+app.put('/:name', async (req,res) => {
+    let data = await dbConnect();
+    let result = await data.updateOne(
+        {name: req.params.name},
+        {$set: req.body}
+    )
+    res.send(result);
+})
+
+app.delete('/:id', async (req, res) => {
+    // console.log(req.params.id);
+    let data = await dbConnect();
+    let result = await data.deleteOne({_id: new mongodb.ObjectId(req.params.id)})
+    res.send(result);
+})
+
+app.listen(4000);
